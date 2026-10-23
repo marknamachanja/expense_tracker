@@ -101,7 +101,7 @@ export default function App() {
       contentContainerStyle = {{ flex : 1}}
     > 
 
-      <TouchableWithoutFeedback>
+      <TouchableWithoutFeedback onPress = {Keyboard.dismiss}>
         <View>
           <Text style = { styles.pageTitle}>
             Expense Tracker
@@ -117,7 +117,7 @@ export default function App() {
       <TextInput 
         style = {styles.searchInput}
         placeholder = "Search expenses"
-        placeholderTextColor = "#0e0808"
+        placeholderTextColor = "#9A92A6"
         value = {searchQuery}
         onChangeText = {setSearchQuery}
       />
@@ -135,6 +135,7 @@ export default function App() {
         )}
 
         keyboardShouldPersistTaps = "handled"
+        keyboardDismissMode = "on-drag"
         style = {styles.listContainer}
         contentContainerStyle = {{ paddingBottom: 120 }}
       />
@@ -146,31 +147,37 @@ const styles = StyleSheet.create ({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#fff",
-    paddingTop:10
+    backgroundColor: "#FAFAFC",
+    paddingTop:40
   },
   subtitle: {
     fontSize: 18,
-    fontWeight: "bold",
-    marginTop: 10,
-    marginBottom: 10
+    fontWeight: "800",
+    color:"2D1B4E",
+    marginTop: 0,
+    marginBottom: 12
   },
   listContainer: {
     flex: 1
   },
   searchInput: {
-    backgroundColor: "#cab2af",
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 10,
+    backgroundColor: "#F4F3F8",
+    borderWidth: 1,
+    borderColor: "#E2DFEC",
+    paddingHorizontal: 12,
+    paddingVertical : 12,
+    borderRadius: 14,
+    marginBottom: 16,
     fontSize: 16,
+    color: "#1F1235",
+    fontWeight: "500"
   },
   pageTitle: {
-    fontSize: 34,
+    fontSize: 32,
     fontWeight: "900",
     color: "#2D1B4E",
-    marginBottom: 10,
-    letterSpacing: 1.5,
+    marginBottom: 24,
+    letterSpacing: 0.5,
     textAlign: "center"
   }
 })

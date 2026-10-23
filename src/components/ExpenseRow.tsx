@@ -79,9 +79,9 @@ const styles = StyleSheet.create ({
     },
     editButton:{
         backgroundColor: "#F0EDF6",
-        paddingHorizontal: 16,
-        paddingVertical: 20,
-        borderRadius: 6,
+        paddingHorizontal: 10,
+        paddingVertical: 10,
+        borderRadius: 12,
         marginRight: 8
     },
     editButtonText: {
