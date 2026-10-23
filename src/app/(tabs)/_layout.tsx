@@ -7,7 +7,8 @@ export default function TabLayout() {
                 name = "index"
                 options = {{
                     title : "Expenses",
-                    tabBarLabel : "Home"
+                    tabBarLabel : "Home",
+                    headerShown : false
                 }}
             />
 

@@ -20,21 +20,30 @@ export default function BalanceCard({balance}: BalanceCardProps) {
 
 const styles = StyleSheet.create ({
     container: {
-        padding:20,
-        backgroundColor: "#cab2af",
-        borderRadius: 15,
-        marginBottom: 20,
+        padding:30,
+        backgroundColor: "#2D1B4E",
+        borderRadius: 20,
+        marginBottom: 50,
         alignItems: "center",
-        justifyContent: "center"
-    },
+        justifyContent: "center",
+        shadowColor : "#2D1B4E",
+        shadowOffset : { width: 0, height: 5},
+        shadowOpacity : 0.44,
+        shadowRadius : 6,
+        elevation : 8
+        },
     label: {
-        color: "#480c5ae7",
-        fontSize: 16,
+        color: "#FFFFFFB2",
+        fontSize: 14,
+        textTransform: "uppercase",
         marginBottom: 5,
+        letterSpacing: 1.5,
+        fontWeight: "600"
     },
     amount: {
-        color:"#080808",
-        fontSize:32,
-        fontWeight: "bold"
+        color:"#ffffff",
+        fontSize:38,
+        fontWeight: "800",
+        letterSpacing: 0.8
     }
 })

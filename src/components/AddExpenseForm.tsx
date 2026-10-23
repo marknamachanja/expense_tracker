@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, Button, Alert, Keyboard } from "react-native";
+import { View, Text, StyleSheet, TextInput, Button, Alert, Keyboard, TouchableOpacity } from "react-native";
 import { useState }  from "react";
 
 type AddExpenseFormProps = {
@@ -35,7 +35,7 @@ export default function AddExpenseForm({onAddExpense}: AddExpenseFormProps) {
         <View style = {styles.container}>
             <TextInput
                 style = {styles.input}
-                placeholder = "What did you buy?"
+                placeholder = "Description"
                 placeholderTextColor = "#0e0808"
                 value = {description}
                 onChangeText = {setDescription}
@@ -45,29 +45,54 @@ export default function AddExpenseForm({onAddExpense}: AddExpenseFormProps) {
                 placeholder = "Amount (KES)"
                 placeholderTextColor = "#0e0808"
                 value = {amount}
-                onChangeText = { setAmount }                  
+                onChangeText = { setAmount }   
+                keyboardType = "numeric"               
             />
-            <Button
-                title = "Add Expense"
-                onPress = {handleSubmit}
-            />
+            <TouchableOpacity
+                style ={ styles.button}
+                onPress = { handleSubmit}
+                activeOpacity = {0.8}
+            >
+                <Text style = {styles.buttonText}>
+                    Add Expense
+                </Text>
+            </TouchableOpacity>
         </View>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
-        padding: 20,
-        marginTop:20
+        marginBottom: 20
+    },
+    button: {
+        backgroundColor: "#2D1B4E",
+        paddingVertical: 16,
+        borderRadius: 14,
+        alignItems: "center",
+        justifyContent: "center",
+        shadowColor : "#2D1B4E",
+        shadowOffset :  { width: 0, height: 4 },
+        shadowOpacity : 0.2,
+        shadowRadius : 4,
+        elevation : 4
+    },
+    buttonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "600",
+        letterSpacing: 0.6
     },
     input: {
-        backgroundColor: "#cab2af",
+        backgroundColor: "#F4F3F8",
         borderWidth: 1,
-        color: "#000",
-        borderColor: "#ccc",
-        borderRadius: 8,
-        padding : 12,
-        marginBottom: 10,
-        fontSize: 16
+        borderColor: "#E2DFEC",
+        borderRadius: 14,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        marginBottom: 12,
+        fontSize: 15,
+        color: "#1F1235",
+        fontWeight: "500"
     }
 })

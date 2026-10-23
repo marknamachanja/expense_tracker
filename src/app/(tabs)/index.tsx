@@ -1,4 +1,4 @@
-import { View, StyleSheet, FlatList, Text, TextInput, KeyboardAvoidingView, Platform } from "react-native";
+import { View, StyleSheet, FlatList, Text, TextInput, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BalanceCard from "../../components/BalanceCard";
@@ -96,30 +96,35 @@ export default function App() {
   return (
     <KeyboardAvoidingView 
       style = {styles.container}
-      behavior = {Platform.OS === "ios" ? "padding" : undefined}
-    >
+      behavior = {Platform.OS === "ios" ? "position" : "height"}
+      keyboardVerticalOffset = {Platform.OS === "ios" ? 20 : 0}
+      contentContainerStyle = {{ flex : 1}}
+    > 
+
+      <TouchableWithoutFeedback>
+        <View>
+          <Text style = { styles.pageTitle}>
+            Expense Tracker
+          </Text>
+          <BalanceCard balance = {balance} />
+          <AddExpenseForm onAddExpense = {handleAddExpense} />
+          <Text style = {styles.subtitle}>
+            Recent Expenses
+          </Text>
+        </View>
+      </TouchableWithoutFeedback>   
+
+      <TextInput 
+        style = {styles.searchInput}
+        placeholder = "Search expenses"
+        placeholderTextColor = "#0e0808"
+        value = {searchQuery}
+        onChangeText = {setSearchQuery}
+      />
+             
       <FlatList
         data = {filteredExpenses}
         keyExtractor = { item => item.id }
-
-        ListHeaderComponent = {
-          <>
-            <BalanceCard balance = {balance} />
-            <AddExpenseForm onAddExpense = {handleAddExpense} />
-            <Text style = {styles.subtitle}>
-              Recent Expenses
-            </Text>
-
-            <TextInput 
-              style = {styles.searchInput}
-              placeholder = "Search expenses"
-              placeholderTextColor = "#0e0808"
-              value = {searchQuery}
-              onChangeText = {setSearchQuery}
-            />
-          </>
-        }
-
         renderItem = {({ item }) => (
           <ExpenseRow
             id = {item.id}
@@ -142,7 +147,7 @@ const styles = StyleSheet.create ({
     flex: 1,
     padding: 20,
     backgroundColor: "#fff",
-    paddingTop:50
+    paddingTop:10
   },
   subtitle: {
     fontSize: 18,
@@ -159,5 +164,13 @@ const styles = StyleSheet.create ({
     borderRadius: 8,
     marginBottom: 10,
     fontSize: 16,
+  },
+  pageTitle: {
+    fontSize: 34,
+    fontWeight: "900",
+    color: "#2D1B4E",
+    marginBottom: 10,
+    letterSpacing: 1.5,
+    textAlign: "center"
   }
 })

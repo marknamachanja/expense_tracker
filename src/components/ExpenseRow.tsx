@@ -13,71 +13,88 @@ export default function ExpenseRow({id, description, amount, onDelete}: ExpenseR
 
     return (
         <View style = {styles.container}>
-            <Text style = {styles.description}>
-                {description}
-            </Text>
-            <Text style = {styles.amount}>
-                KES { amount.toFixed(2) }
-            </Text>
-
-            <TouchableOpacity 
-                onPress = {() => router.push(`/edit/[id]`)}
-                style = {styles.editButton}
-            >
-                <Text style = {styles.buttonText}>
-                    Edit
+            <View style = {styles.textGroup}>
+                <Text style = {styles.description}>
+                    {description}
                 </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress ={() => onDelete(id)} style = {styles.deleteButton}>
-                <Text style = { styles.deleteText}>
-                    X
+                <Text style = {styles.amount}>
+                    KES { amount.toFixed(2) }
                 </Text>
-            </TouchableOpacity>
+            </View>
+
+            <View style = {styles.buttonGroup}>
+                <TouchableOpacity 
+                    onPress = {() => router.push(`/edit/$${id}`)}
+                    style = {styles.editButton}
+                >
+                    <Text style = {styles.editButtonText}>
+                        Edit
+                    </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress ={() => onDelete(id)} style = {styles.deleteButton}>
+                    <Text style = { styles.deleteText}>
+                        ✕
+                    </Text>
+                </TouchableOpacity>
+            </View>
         </View>
     )
 }
 
 const styles = StyleSheet.create ({
     container: {
-        padding: 15,
+        paddingVertical: 15,
         borderBottomWidth: 1,
-        borderBottomColor: "#eee",
+        borderBottomColor: "#E2DFEC",
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center"
     },
     textGroup:{
         flex:1,
+        paddingRight: 10
     },
     description: {
         fontSize: 16,
+        color: "#1F1235",
+        fontWeight: "600",
+        marginBottom: 4
     },
     amount: {
-        fontSize: 16,
-        fontWeight: "bold",
-        color:"#333"
+        fontSize: 14,
+        fontWeight: "500",
+        color:"#6E6680"
     },
     deleteButton: {
-        backgroundColor: "#ff4d4d",
+        backgroundColor: "#FEECEB",
         paddingHorizontal : 12,
         paddingVertical: 8,
-        borderRadius:6,
-        marginLeft:10
+        borderRadius:20,
     },
     deleteText: {
-        color: '#fff',
-        fontWeight: "bold"
+        color: '#E53935',
+        fontWeight: "900",
+        fontSize: 14
     },
     editButton:{
-        backgroundColor: "#4510d6",
-        paddingHorizontal: 12,
-        paddingVertical: 8,
+        backgroundColor: "#F0EDF6",
+        paddingHorizontal: 16,
+        paddingVertical: 20,
         borderRadius: 6,
-        marginLeft: 10
+        marginRight: 8
+    },
+    editButtonText: {
+        color: "#2D1B4E",
+        fontWeight: "700",
+        fontSize: 13
     },
     buttonText: {
         color: "#fff",
         fontWeight: "bold"
+    },
+    buttonGroup: {
+        flexDirection: "row",
+        alignItems: "center"
     }
 })
