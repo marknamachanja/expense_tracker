@@ -24,7 +24,7 @@ export default function ExpenseRow({id, description, amount, onDelete}: ExpenseR
 
             <View style = {styles.buttonGroup}>
                 <TouchableOpacity 
-                    onPress = {() => router.push(`/edit/$${id}`)}
+                    onPress = {() => router.push(`/edit/${id}`)}
                     style = {styles.editButton}
                 >
                     <Text style = {styles.editButtonText}>
