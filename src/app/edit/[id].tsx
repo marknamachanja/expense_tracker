@@ -1,13 +1,15 @@
 import {View, Text, StyleSheet, Button, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard} from "react-native";
 import { useState, useEffect } from "react";
 import { useExpenseStore } from "../../store/expenseStore";
+import { useExchangeRate } from "../../hooks/useExchangeRate";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 export default function EditExpenseScreen() {
     const { id } = useLocalSearchParams();
     const router = useRouter();
 
-    const { expenses, updateExpense } = useExpenseStore();
+    const { expenses, updateExpense, isUSD } = useExpenseStore();
+    const { data: exchangeRate } = useExchangeRate();
 
     const [description, setDescription ] = useState("");
     const [amount, setAmount ] = useState("");
@@ -23,12 +25,16 @@ export default function EditExpenseScreen() {
 
         if ( expense ) {
             setDescription(expense.description);
-            setAmount(expense.amount.toString());
+            if ( isUSD && exchangeRate ) {
+                setAmount((expense.amount / exchangeRate).toFixed(2));
+            } else {
+                setAmount( expense.amount.toString());
+            }
         } else {
             Alert.alert("Error", "Expense not found");
             router.back();
         }
-    },[id, expenses]);
+    },[id, expenses, isUSD, exchangeRate]);
 
     const handleSave = () => {
         if ( !description.trim()) {
@@ -36,10 +42,14 @@ export default function EditExpenseScreen() {
             return;
         }
 
-        const cost = parseFloat(amount);
+        let cost = parseFloat(amount);
         if ( isNaN(cost) || cost <= 0 ) {
             Alert.alert("Invalid amount", "Please enter a valid amount")
             return;
+        }
+
+        if ( isUSD && exchangeRate ) {
+            cost = cost * exchangeRate;
         }
 
         //send the data to zustand
@@ -74,7 +84,7 @@ export default function EditExpenseScreen() {
 
                     <TextInput 
                         style = { styles.input}
-                        placeholder = "Amount"
+                        placeholder = {isUSD ? "Amount (USD)" : "Amount (KES)"}
                         placeholderTextColor = "#9A92A6"
                         value = {amount}
                         onChangeText = { setAmount }

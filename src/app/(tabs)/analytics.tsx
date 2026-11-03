@@ -1,11 +1,14 @@
-import {View, Text, StyleSheet, ScrollView, Dimensions } from "react-native";
+import {View, Text, StyleSheet, ScrollView, Dimensions, ActivityIndicator } from "react-native";
 import { useExpenseStore } from "../../store/expenseStore";
+import { useExchangeRate } from "../../hooks/useExchangeRate";
 import { BarChart } from "react-native-chart-kit";
+import { useQuery } from "@tanstack/react-query";
 
 const screenWidth = Dimensions.get("window").width;
 
 export default function AnalyticsScreen() {
-    const { expenses } = useExpenseStore();
+    const { expenses, isUSD } = useExpenseStore();
+    const { data:exchangeRate, isLoading, isError } = useExchangeRate();
 
     const totalSpent = expenses.reduce((sum, expense) => sum + expense.amount, 0);
     const averageSpent = expenses.length > 0? totalSpent / expenses.length : 0;
@@ -14,6 +17,13 @@ export default function AnalyticsScreen() {
     const topExpenses = [ ...expenses]
         .sort((a, b) => b.amount - a.amount)
         .slice(0, 3);
+
+    const formatMoney = ( amountInKES: number ) => {
+        if ( isUSD && exchangeRate ) {
+            return `$ ${(amountInKES / exchangeRate ).toFixed(2)}`;
+        }
+        return `KES ${amountInKES.toFixed(2)}`;
+    }
 
     //monthly math
     const currentMonthLabel = new Date().toLocaleString('default', { month: 'short' });
@@ -34,7 +44,13 @@ export default function AnalyticsScreen() {
 
     //split the array into labels and data
     const chartLabels = Object.keys(monthlyData);
-    const chartValues = Object.values(monthlyData);
+    const chartValues = Object.values(monthlyData).map(val => {
+        if ( isUSD && exchangeRate ) {
+            return Number((val / exchangeRate).toFixed(2));
+        }
+        return val;
+    }
+    );
 
     //dummy data if no values
     if (chartLabels.length === 0) {
@@ -60,16 +76,29 @@ export default function AnalyticsScreen() {
                 >
                     Total Spent
                 </Text>
-                <Text
-                    style = { styles.mainAmount}
-                >
-                    KES { totalSpent.toFixed(2) }
-                </Text>
+                {isUSD && isLoading ? (
+                    <ActivityIndicator
+                        size = "small"
+                        color = "#FFFFFF"
+                        style = {{ marginVertical: 10 }}
+                    />
+                ) : (
+                    <Text
+                        style = { styles.mainAmount }
+                    >
+                        {formatMoney(totalSpent)}
+                    </Text>
+                )}
                 <Text
                     style = { styles.subText }
                 >
                     { expenses.length } total transactions
                 </Text>
+                { isUSD && isError && (
+                    <Text>
+                        Could not fetch live exchange rates
+                    </Text>
+                )}
             </View>
 
             {/*Monthly Bar Chart */}
@@ -92,7 +121,7 @@ export default function AnalyticsScreen() {
                     }}
                     width = { screenWidth - 48 }
                     height = { 240 }
-                    yAxisLabel = "KES "
+                    yAxisLabel = { isUSD ? "$" : "KES" }
                     yAxisSuffix = ""
                     fromZero = { true }
                     chartConfig ={{
@@ -128,7 +157,7 @@ export default function AnalyticsScreen() {
                     <Text
                         style = { styles.smallAmount }
                     >
-                        KES { averageSpent.toFixed(2) }
+                        {formatMoney(averageSpent)}
                     </Text>
                 </View>
 
@@ -143,7 +172,7 @@ export default function AnalyticsScreen() {
                     <Text
                         style = { styles.smallAmount }
                     >
-                        KES { highestExpense.toFixed(0) }
+                        {formatMoney(highestExpense)}
                     </Text>
                 </View>
             </View>
@@ -179,7 +208,7 @@ export default function AnalyticsScreen() {
                             <Text
                                 style = { styles.expenseAmount }
                             >
-                                KES  { expense.amount.toFixed(0) }
+                                { formatMoney(expense.amount )}
                             </Text>
                         </View>
                     ))
@@ -330,5 +359,39 @@ const styles = StyleSheet.create({
         color: "#9A92A6",
         fontSize: 16,
         fontStyle: "italic"
+    },
+    currencyCard: {
+        backgroundColor: "#FFFFFF",
+        padding: 20,
+        borderRadius: 16,
+        alignItems: "center",
+        marginBottom : 24,
+        borderWidth: 1,
+        borderColor: "#E2DFEC"
+    },
+    currencyTitle: {
+        color: '#6E6680',
+        fontSize: 13,
+        textTransform: "uppercase",
+        letterSpacing: 1,
+        fontWeight: "600",
+        marginBottom: 8
+    },
+    usdAmount: {
+        color: "#2D1B4E",
+        fontSize: 28,
+        fontWeight: "800"
+    },
+    rateText: {
+        color: "#9A92A6",
+        fontSize: 12,
+        marginTop: 4,
+        fontWeight: "500"
+    },
+    errorText: {
+        color: "#E53935",
+        fontSize:14,
+        fontWeight: "600",
+        marginTop: 8
     }
 })

@@ -1,6 +1,7 @@
-import { View, StyleSheet, FlatList, Text, TextInput, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { View, StyleSheet, FlatList, Text, TextInput, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, Switch } from "react-native";
 import { useState, useEffect } from "react";
 import { useExpenseStore } from "../../store/expenseStore";
+import { useExchangeRate } from "../../hooks/useExchangeRate";
 import BalanceCard from "../../components/BalanceCard";
 import ExpenseRow from "../../components/ExpenseRow";
 import AddExpenseForm from "../../components/AddExpenseForm";
@@ -10,7 +11,8 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
 
   //we pull all data from the store
-  const { expenses, balance, loadData, addExpense, deleteExpense } = useExpenseStore();
+  const { expenses, balance, loadData, addExpense, deleteExpense, isUSD, toggleCurrency } = useExpenseStore();
+  const { isLoading } = useExchangeRate();
 
 
   //load data on app start
@@ -32,9 +34,28 @@ export default function App() {
 
       <TouchableWithoutFeedback onPress = {Keyboard.dismiss}>
         <View>
-          <Text style = { styles.pageTitle}>
-            Expense Tracker
-          </Text>
+          <View
+            style = {styles.headerRow}
+          >
+            <Text style = { styles.pageTitle}>
+              Expense Tracker
+            </Text>
+          </View>
+          <View
+            style = { styles.switchContainer }
+          >
+            <Text
+              style = { styles.switchLabel }
+            >
+              USD
+            </Text>
+            <Switch
+              value = { isUSD }
+              onValueChange = { toggleCurrency}
+              trackColor = {{ false: "#E2DFEC", true: "#1F1235"}}
+              disabled = { isLoading }
+            />
+          </View>
           <BalanceCard balance = {balance} />
           <AddExpenseForm onAddExpense = {addExpense} />
           <Text style = {styles.subtitle}>
@@ -105,8 +126,24 @@ const styles = StyleSheet.create ({
     fontSize: 32,
     fontWeight: "900",
     color: "#2D1B4E",
-    marginBottom: 24,
+    marginBottom: 12,
     letterSpacing: 0.5,
     textAlign: "center"
+  },
+  headerRow: {
+     flexDirection: "row",
+     justifyContent: "space-between",
+     alignItems: "center",
+     marginBottom: 2
+  },
+  switchContainer: {
+    flexDirection: "row",
+    alignItems: "center"
+  },
+  switchLabel: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#6E6680",
+    marginRight: 8
   }
 })

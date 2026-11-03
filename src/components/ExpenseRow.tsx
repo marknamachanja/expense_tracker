@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
+import { useExpenseStore } from "../store/expenseStore";
+import { useExchangeRate } from "../hooks/useExchangeRate";
 
 type ExpenseRowProps = {
     id: string;
@@ -11,6 +13,16 @@ type ExpenseRowProps = {
 export default function ExpenseRow({id, description, amount, onDelete}: ExpenseRowProps) {
     const router = useRouter();
 
+    const { isUSD } = useExpenseStore();
+    const { data: exchangeRate } = useExchangeRate();
+
+    const formatMoney = ( amountInKES: number ) => {
+        if ( isUSD && exchangeRate ) {
+            return `$ ${(amountInKES / exchangeRate ).toFixed(2)}`;
+        }
+        return `KES ${amountInKES.toFixed(2)}`;
+    }
+
     return (
         <View style = {styles.container}>
             <View style = {styles.textGroup}>
@@ -18,7 +30,7 @@ export default function ExpenseRow({id, description, amount, onDelete}: ExpenseR
                     {description}
                 </Text>
                 <Text style = {styles.amount}>
-                    KES { amount.toFixed(2) }
+                    { formatMoney(amount)}
                 </Text>
             </View>
 

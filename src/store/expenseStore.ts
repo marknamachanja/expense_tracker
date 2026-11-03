@@ -15,6 +15,8 @@ interface ExpenseState {
     addExpense: (description: string, amount: number) => void;
     deleteExpense: (id: string, amount: number) => void;
     updateExpense: (id: string, description: string, amount: number) => void;
+    isUSD: boolean;
+    toggleCurrency: () => void;
 }
 
 const saveData = async ( expenses: Expense[], balance: number ) => {
@@ -29,6 +31,7 @@ const saveData = async ( expenses: Expense[], balance: number ) => {
 export const useExpenseStore = create<ExpenseState>((set) => ({
     expenses: [],
     balance: 5000,
+    isUSD: false,
 
     loadData: async () => {
         try {
@@ -90,6 +93,14 @@ export const useExpenseStore = create<ExpenseState>((set) => ({
 
             saveData(newExpenses, newBalance);
             return { expenses: newExpenses, balance: newBalance };
+        })
+    },
+
+    toggleCurrency: () => {
+        set((state) => {
+            const newIsUSD = !state.isUSD;
+            AsyncStorage.setItem("isUSD", JSON.stringify(newIsUSD));
+            return { isUSD: newIsUSD };
         })
     }
 }));
