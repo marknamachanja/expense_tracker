@@ -13,7 +13,7 @@ type ExpenseRowProps = {
 export default function ExpenseRow({id, description, amount, onDelete}: ExpenseRowProps) {
     const router = useRouter();
 
-    const { isUSD } = useExpenseStore();
+    const { isUSD, isDarkMode } = useExpenseStore();
     const { data: exchangeRate } = useExchangeRate();
 
     const formatMoney = ( amountInKES: number ) => {
@@ -22,14 +22,32 @@ export default function ExpenseRow({id, description, amount, onDelete}: ExpenseR
         }
         return `KES ${amountInKES.toFixed(2)}`;
     }
+    
+    const theme  = isDarkMode ? {
+        textMain : "#FAFAFA",
+        textSub : "#A39BB5",
+        border : "#392659",
+        editBg : "#392659",
+        editText : "#FAFAFA",
+        deleteBg : "#4A1525",
+        deleteText : "#FF8A80"
+    } : {
+        textMain : "#1F1235",
+        textSub : "#6E6680",
+        border : "#E2DFEC",
+        editBg : "#F0EDF6",
+        editText : "#2D1B4E",
+        deletebg : "#FEECEB",
+        deleteText : "#E53935"
+    }
 
     return (
-        <View style = {styles.container}>
+        <View style = {[styles.container, { borderBottomColor : theme.border }]}>
             <View style = {styles.textGroup}>
-                <Text style = {styles.description}>
+                <Text style = {[styles.description, { color : theme.textMain }]}>
                     {description}
                 </Text>
-                <Text style = {styles.amount}>
+                <Text style = {[styles.amount, { color : theme.textSub }]}>
                     { formatMoney(amount)}
                 </Text>
             </View>
@@ -37,15 +55,15 @@ export default function ExpenseRow({id, description, amount, onDelete}: ExpenseR
             <View style = {styles.buttonGroup}>
                 <TouchableOpacity 
                     onPress = {() => router.push(`/edit/${id}`)}
-                    style = {styles.editButton}
+                    style = {[styles.editButton, { backgroundColor : theme.editBg }]}
                 >
-                    <Text style = {styles.editButtonText}>
+                    <Text style = {[styles.editButtonText, { color : theme.editText }]}>
                         Edit
                     </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress ={() => onDelete(id)} style = {styles.deleteButton}>
-                    <Text style = { styles.deleteText}>
+                <TouchableOpacity onPress ={() => onDelete(id)} style = {[styles.deleteButton, { backgroundColor : theme.deleteBg}]}>
+                    <Text style = { [styles.deleteText, { color : theme.deleteText }]}>
                         ✕
                     </Text>
                 </TouchableOpacity>

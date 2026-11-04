@@ -2,12 +2,11 @@ import {View, Text, StyleSheet, ScrollView, Dimensions, ActivityIndicator } from
 import { useExpenseStore } from "../../store/expenseStore";
 import { useExchangeRate } from "../../hooks/useExchangeRate";
 import { BarChart } from "react-native-chart-kit";
-import { useQuery } from "@tanstack/react-query";
 
 const screenWidth = Dimensions.get("window").width;
 
 export default function AnalyticsScreen() {
-    const { expenses, isUSD } = useExpenseStore();
+    const { expenses, isUSD, isDarkMode } = useExpenseStore();
     const { data:exchangeRate, isLoading, isError } = useExchangeRate();
 
     const totalSpent = expenses.reduce((sum, expense) => sum + expense.amount, 0);
@@ -58,13 +57,37 @@ export default function AnalyticsScreen() {
         chartValues.push(0)
     }
 
+    const theme = isDarkMode ? {
+        background : "#210a0a",
+        textMain : "#FAFAFA",
+        textSub : "#A39BB5",
+        cardBg : "#1F1235",
+        border : "#392659",
+        chartBg : "#1F1235",
+        bargeBg : "#392659",
+        barColour : "#4510D6",
+        bargeText : "#FAFAFA",
+        amountRed : "#FF8A80"
+    } : {
+        background : "#FAFAFC",
+        textMain : "#2D1B4E",
+        textSub : "#6E6680",
+        cardBg : "#FFFFFF",
+        border : "#E2DFEC",
+        chartBg : "#FFFFFF",
+        bargeBg : "#F0EDF6",
+        barColor : "#E2DFEC",
+        bargeText : "#2D1B4E",
+        amountRed : "#E53935"
+    }
+
     return (
         <ScrollView 
-            style = { styles.container }
+            style = { [styles.container, { backgroundColor : theme.background }] }
             contentContainerStyle = { styles.content}
         >
             <Text
-                style = {styles.pageTitle}
+                style = {[styles.pageTitle, { color : theme.textMain }]}
             >
                 Analytics
             </Text>
@@ -106,7 +129,7 @@ export default function AnalyticsScreen() {
                 style = { styles.chartContainer }
             >
                 <Text
-                    style = { styles.sectionTitle }
+                    style = { [styles.sectionTitle, { color : theme.textMain }] }
                 >
                     Monthly Spending
                 </Text>
@@ -121,23 +144,24 @@ export default function AnalyticsScreen() {
                     }}
                     width = { screenWidth - 48 }
                     height = { 240 }
-                    yAxisLabel = { isUSD ? "$" : "KES" }
+                    yAxisLabel = ""
                     yAxisSuffix = ""
+                    withVerticalLabels = { false }
                     fromZero = { true }
                     chartConfig ={{
-                        backgroundColor: "#FFFFFF",
-                        backgroundGradientFrom: "#FFFFFF",
-                        backgroundGradientTo: "#FFFFFF",
+                        backgroundColor: theme.chartBg,
+                        backgroundGradientFrom: theme.chartBg,
+                        backgroundGradientTo: theme.chartBg,
                         decimalPlaces: 0,
                         color: () => "#4510D6",
-                        labelColor: () => "#6E6680",
+                        labelColor: () => theme.textSub,
                         style: { borderRadius : 16},
                         barPercentage: 0.6,
                         propsForLabels: {
                             fontSize: 10
                         }
                     }}
-                    style = { styles.chart}
+                    style = { {...styles.chart, borderColor: theme.border} }
                     showValuesOnTopOfBars = { true }
                     segments = { 4 }
                 />
@@ -147,30 +171,30 @@ export default function AnalyticsScreen() {
                 style = { styles.statsRow}
             >
                 <View
-                    style = { styles.smallCard}
+                    style = { [styles.smallCard, { backgroundColor : theme.cardBg, borderColor : theme.border }]}
                 >
                     <Text
-                        style = { styles.smallLabel}
+                        style = { [styles.smallLabel, { color : theme.textSub }]}
                     >
                         Average
                     </Text>
                     <Text
-                        style = { styles.smallAmount }
+                        style = {[ styles.smallAmount, { color : theme.textMain }]}
                     >
                         {formatMoney(averageSpent)}
                     </Text>
                 </View>
 
                 <View
-                    style = { styles.smallCard}
+                    style = { [styles.smallCard, { backgroundColor : theme.cardBg, borderColor : theme.border }]}
                 >
                     <Text
-                        style = { styles.smallLabel}
+                        style = { [styles.smallLabel, { color : theme.textSub }]}
                     >
                         Highest
                     </Text>
                     <Text
-                        style = { styles.smallAmount }
+                        style = { [styles.smallAmount, { color : theme.textMain }]}
                     >
                         {formatMoney(highestExpense)}
                     </Text>
@@ -179,7 +203,7 @@ export default function AnalyticsScreen() {
 
             <View >
                 <Text 
-                    style = { styles.sectionTitle }
+                    style = { [styles.sectionTitle, { color : theme.textMain}] }
                 >
                     Biggest Expense
                 </Text>
@@ -188,25 +212,25 @@ export default function AnalyticsScreen() {
                     topExpenses.map ((expense, index) => (
                         <View
                             key = { expense.id }
-                            style = { styles.topExpenseRow }
+                            style = { [styles.topExpenseRow, { backgroundColor : theme.cardBg, borderColor : theme.border }]}
                         >
                             <View
-                                style = { styles.rankBadge }
+                                style = { [styles.rankBadge, { backgroundColor : theme.bargeBg }]}
                             >
                                 <Text
-                                    style = { styles.rankText }
+                                    style = { [styles.rankText, { backgroundColor : theme.bargeText }]}
                                 >
                                     { index + 1 }
                                 </Text>
                             </View>
                             <Text
-                                style = { styles.expenseDesc }
+                                style = { [styles.expenseDesc, { color: theme.textMain }]}
                                 numberOfLines = { 1 }
                             >
                                 { expense.description }
                             </Text>
                             <Text
-                                style = { styles.expenseAmount }
+                                style = {[styles.expenseAmount, { color : theme.amountRed }]}
                             >
                                 { formatMoney(expense.amount )}
                             </Text>

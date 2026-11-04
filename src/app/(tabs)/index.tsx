@@ -11,7 +11,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
 
   //we pull all data from the store
-  const { expenses, balance, loadData, addExpense, deleteExpense, isUSD, toggleCurrency } = useExpenseStore();
+  const { expenses, balance, loadData, addExpense, deleteExpense, isUSD, toggleCurrency, isDarkMode, toggleDarkMode } = useExpenseStore();
   const { isLoading } = useExchangeRate();
 
 
@@ -24,9 +24,21 @@ export default function App() {
     expense.description.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
+  const theme = isDarkMode ? {
+    background : "#120A21",
+    text : "#FAFAFA",
+    inputBg : "#1F1235",
+    border : "#392659"
+  } : {
+    background : "#FAFAFC",
+    text : "#2D1B4E",
+    inputBg : "#F4F3F8",
+    border : "#E2DFEC"
+  }
+
   return (
     <KeyboardAvoidingView 
-      style = {styles.container}
+      style = {[styles.container, { backgroundColor : theme.background }]}
       behavior = {Platform.OS === "ios" ? "position" : "height"}
       keyboardVerticalOffset = {Platform.OS === "ios" ? 20 : 0}
       contentContainerStyle = {{ flex : 1}}
@@ -37,24 +49,37 @@ export default function App() {
           <View
             style = {styles.headerRow}
           >
-            <Text style = { styles.pageTitle}>
+            <Text style = { [styles.pageTitle, { color: theme.text }] }>
               Expense Tracker
             </Text>
           </View>
-          <View
-            style = { styles.switchContainer }
-          >
-            <Text
-              style = { styles.switchLabel }
+
+          <View style = { styles.togglesContainer }>
+            <View style = { styles.switchContainer }>
+              <Text style = { styles.switchLabel }>
+                { isDarkMode ? "Dark Mode" : "Light Mode" }
+                <Switch
+                  value = { isDarkMode }
+                  onValueChange = { toggleDarkMode }
+                  trackColor = {{ false: "#E2DFEC", true: "#1F1235"}}
+                />
+              </Text>
+            </View>
+            <View
+              style = { styles.switchContainer }
             >
-              USD
-            </Text>
-            <Switch
-              value = { isUSD }
-              onValueChange = { toggleCurrency}
-              trackColor = {{ false: "#E2DFEC", true: "#1F1235"}}
-              disabled = { isLoading }
-            />
+              <Text
+                style = { styles.switchLabel }
+              >
+                USD
+              </Text>
+              <Switch
+                value = { isUSD }
+                onValueChange = { toggleCurrency}
+                trackColor = {{ false: "#E2DFEC", true: "#1F1235"}}
+                disabled = { isLoading }
+              />
+            </View>
           </View>
           <BalanceCard balance = {balance} />
           <AddExpenseForm onAddExpense = {addExpense} />
@@ -65,7 +90,7 @@ export default function App() {
       </TouchableWithoutFeedback>   
 
       <TextInput 
-        style = {styles.searchInput}
+        style = {[styles.searchInput, { backgroundColor : theme.inputBg, borderColor : theme.border, color : theme.text }]}
         placeholder = "Search expenses"
         placeholderTextColor = "#9A92A6"
         value = {searchQuery}
@@ -145,5 +170,9 @@ const styles = StyleSheet.create ({
     fontWeight: "700",
     color: "#6E6680",
     marginRight: 8
+  },
+  togglesContainer: {
+    flexDirection: "row",
+    alignItems: "center"
   }
 })

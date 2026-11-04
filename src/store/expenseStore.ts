@@ -17,6 +17,8 @@ interface ExpenseState {
     updateExpense: (id: string, description: string, amount: number) => void;
     isUSD: boolean;
     toggleCurrency: () => void;
+    isDarkMode: boolean;
+    toggleDarkMode: () => void;
 }
 
 const saveData = async ( expenses: Expense[], balance: number ) => {
@@ -32,15 +34,20 @@ export const useExpenseStore = create<ExpenseState>((set) => ({
     expenses: [],
     balance: 5000,
     isUSD: false,
+    isDarkMode: false,
 
     loadData: async () => {
         try {
             const savedExpenses = await AsyncStorage.getItem("expenses");
             const savedBalance = await AsyncStorage.getItem("balance");
+            const savedTheme = await AsyncStorage.getItem("isDarkMode");
+            const savedCurrency = await AsyncStorage.getItem("isUSD");
 
             set ({
                 expenses:savedExpenses ? JSON.parse(savedExpenses) : [],
                 balance: savedBalance ? JSON.parse(savedBalance) : 5000,
+                isUSD: savedCurrency ? JSON.parse(savedCurrency) : false,
+                isDarkMode: savedTheme ? JSON.parse(savedTheme) :false
             });
         } catch ( error ) {
             console.error("Failed to load data", error);
@@ -101,6 +108,14 @@ export const useExpenseStore = create<ExpenseState>((set) => ({
             const newIsUSD = !state.isUSD;
             AsyncStorage.setItem("isUSD", JSON.stringify(newIsUSD));
             return { isUSD: newIsUSD };
+        })
+    },
+
+    toggleDarkMode: () => {
+        set((state) => {
+            const newIsDarkMode = !state.isDarkMode;
+            AsyncStorage.setItem("isDarkMode", JSON.stringify(newIsDarkMode));
+            return { isDarkMode: newIsDarkMode };
         })
     }
 }));

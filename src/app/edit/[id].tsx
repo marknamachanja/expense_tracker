@@ -8,7 +8,7 @@ export default function EditExpenseScreen() {
     const { id } = useLocalSearchParams();
     const router = useRouter();
 
-    const { expenses, updateExpense, isUSD } = useExpenseStore();
+    const { expenses, updateExpense, isUSD, isDarkMode } = useExpenseStore();
     const { data: exchangeRate } = useExchangeRate();
 
     const [description, setDescription ] = useState("");
@@ -58,9 +58,27 @@ export default function EditExpenseScreen() {
         router.back();
     }
 
+    const theme = isDarkMode ? {
+        background : "#120A21",
+        textMain : "#FAFAFA",
+        inputBg : "#1F1235",
+        border : "#392659",
+        placeholder : "#A39BB5",
+        buttonBg : "#4510D6",
+        cancelText : "#A39BB5"
+    } : {
+        background : "#FAFAFC",
+        textMain : "#2D1B4E",
+        inputBg : "#F4F3F8",
+        border : "#E2DFEC",
+        placeholder : "#9A92A6",
+        buttonBg : "#2D1B4E",
+        cancelText : "#6E6680"
+    }
+
     return (
         <KeyboardAvoidingView
-            style = {styles.container}
+            style = {[styles.container, { backgroundColor : theme.background}]}
             behavior={ Platform.OS === "ios" ? "padding" : "height"}
             keyboardVerticalOffset = { Platform.OS === "ios" ? 0 : 20}
         >
@@ -69,13 +87,13 @@ export default function EditExpenseScreen() {
                     style = { styles.inner}
                 >
                     <Text
-                        style = {styles.pageTitle}
+                        style = {[styles.pageTitle, { color : theme.textMain }]}
                     >
                         Edit Expense
                     </Text>
 
                     <TextInput
-                        style = { styles.input}
+                        style = { [styles.input, { backgroundColor : theme.inputBg, borderColor : theme.border, color : theme.textMain }] }
                         placeholder = "Description"
                         placeholderTextColor = "#9A92A6"
                         value = {description}
@@ -83,7 +101,7 @@ export default function EditExpenseScreen() {
                     />
 
                     <TextInput 
-                        style = { styles.input}
+                        style = { [styles.input, { backgroundColor : theme.inputBg, borderColor : theme.border, color : theme.textMain}]}
                         placeholder = {isUSD ? "Amount (USD)" : "Amount (KES)"}
                         placeholderTextColor = "#9A92A6"
                         value = {amount}
@@ -92,7 +110,7 @@ export default function EditExpenseScreen() {
                     />
 
                     <TouchableOpacity
-                        style = { styles.button}
+                        style = { [styles.button, { backgroundColor : theme.buttonBg }]}
                         onPress = { handleSave}
                         activeOpacity = { 0.8 }
                     >
@@ -109,7 +127,7 @@ export default function EditExpenseScreen() {
                         activeOpacity = { 0.8}
                     >
                         <Text
-                            style = { styles.cancelButtonText}
+                        style = { [styles.cancelButtonText, { color : theme.cancelText }]}
                         >
                             Cancel
                         </Text>

@@ -1,21 +1,32 @@
 import { Tabs } from "expo-router";
 import { Feather } from "@expo/vector-icons";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-const queryClient = new QueryClient();
+import { useExpenseStore } from "../../store/expenseStore";
 
 export default function TabLayout() {
+    const { isDarkMode } = useExpenseStore();
+
+    const theme = isDarkMode ? {
+        background : "#120A21",
+        activeTint : "#FAFAFA",
+        inactiveTint : "#6E6680",
+        border : "#392659"
+    } : {
+        background : "#FFFFFF",
+        activeTint : "#2D1B4E",
+        inactiveTint : "#9A92A6",
+        border : "#E2DFEC"
+    }
+
     return (
-        <QueryClientProvider client = { queryClient}>
             <Tabs
                 screenOptions = {{
                     headerShown : false,
-                    tabBarActiveTintColor : "#2D1B4E",
-                    tabBarInactiveTintColor : "#9A92A6",
+                    tabBarActiveTintColor : theme.activeTint,
+                    tabBarInactiveTintColor : theme.inactiveTint,
                     tabBarStyle : {
-                        backgroundColor : '#FFFFFF',
+                        backgroundColor : theme.background,
                         borderTopWidth : 1,
-                        borderTopColor : "#E2DFEC",
+                        borderTopColor : theme.border,
                         paddingTop : 8,
                         height : 70,
                         elevation : 10,
@@ -53,6 +64,5 @@ export default function TabLayout() {
                     }}
                 />
             </Tabs>
-        </QueryClientProvider>
     );
 }
