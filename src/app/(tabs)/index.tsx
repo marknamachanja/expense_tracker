@@ -105,6 +105,7 @@ export default function App() {
             id = {item.id}
             description = {item.description}
             amount = {item.amount}
+            receiptUri={item.receiptUri}
             onDelete = {() => deleteExpense(item.id, item.amount)}
           />
         )}

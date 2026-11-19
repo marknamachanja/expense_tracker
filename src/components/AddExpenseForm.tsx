@@ -1,18 +1,67 @@
-import { View, Text, StyleSheet, TextInput, Button, Alert, Keyboard, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TextInput, Button, Alert, Keyboard, TouchableOpacity, Image } from "react-native";
 import { useState }  from "react";
 import { useExpenseStore } from "../store/expenseStore";
 import { useExchangeRate } from "../hooks/useExchangeRate";
+import * as ImagePicker from "expo-image-picker";
+import { Feather } from "@expo/vector-icons";
 
 type AddExpenseFormProps = {
-    onAddExpense: (description: string, amount: number) => void;
+    onAddExpense: (description: string, amount: number, receiptUri?: string) => void;
 }
 
 export default function AddExpenseForm({onAddExpense}: AddExpenseFormProps) {
     const [description, setDescription] = useState("");
     const [amount, setAmount] = useState("");
+    const [receiptUri, setReceiptUri] = useState<string | null>(null);
 
     const { isUSD, isDarkMode } = useExpenseStore();
     const { data: exchangeRate } = useExchangeRate();
+
+    //function to open the phone camera
+    const handleTakePhoto = async () => {
+        const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+
+        if(!permissionResult.granted) {
+            Alert.alert(
+                "Permission Denied",
+                "Camera access is required to take a photo."
+            );
+            return;
+        }
+
+        const result = await ImagePicker.launchCameraAsync({
+            mediaTypes:['images'],
+            allowsEditing: true,
+            quality: 0.7
+        })
+
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+            setReceiptUri(result.assets[0].uri);
+        }
+    }
+
+    //function to pick an existing photo
+    const handlePickImage = async () => {
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if(!permissionResult.granted) {
+            Alert.alert(
+                "Permission Denied",
+                "Gallery access is required to select a photo."
+            )
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync ({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            quality: 0.7
+        });
+
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+            setReceiptUri(result.assets[0].uri);
+        }
+    }
 
     const handleSubmit = () => {
         if(!description.trim()) {
@@ -31,11 +80,12 @@ export default function AddExpenseForm({onAddExpense}: AddExpenseFormProps) {
         }
 
         //send data to parent component
-        onAddExpense(description, cost);
+        onAddExpense(description, cost, receiptUri || undefined);
 
         //clear the form
         setDescription("");
         setAmount("");
+        setReceiptUri(null);
 
         Keyboard.dismiss();
     }
@@ -71,6 +121,47 @@ export default function AddExpenseForm({onAddExpense}: AddExpenseFormProps) {
                 onChangeText = { setAmount }   
                 keyboardType = "numeric"               
             />
+
+            {/* Camera and gallery buttons */}
+            <View style = {styles.photoActionsRow}>
+                <TouchableOpacity
+                    style = {[styles.photoButton, {borderColor :theme.border, backgroundColor : theme.inputBg}]}
+                    onPress = { handleTakePhoto }
+                    activeOpacity = {0.7}
+                >
+                    <Feather name="camera" size = {18} color = {theme.text} />
+                    <Text style = {[styles.photoButtonText, { color : theme.text }]}>
+                        Camera
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style = {[styles.photoButton, {borderColor :theme.border, backgroundColor : theme.inputBg}]}
+                    onPress = { handlePickImage }
+                    activeOpacity = {0.7}
+                >
+                    <Feather name="image" size = {18} color = {theme.text} />
+                    <Text style = {[styles.photoButtonText, { color : theme.text }]}>
+                        Gallery
+                    </Text>
+                </TouchableOpacity>
+            </View>
+
+            {/* Preview of the chosen photo */}
+            { receiptUri && (
+                <View style = {styles.previewContainer}>
+                    <Image source = {{ uri: receiptUri }} style = {styles.previewImage} />
+                    <TouchableOpacity
+                        style= {styles.removePhotoButton}
+                        onPress = {() => setReceiptUri(null)}
+                    >
+                        <Text 
+                            style = {styles.removePhotoText}    
+                        >
+                            X
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            )}
             <TouchableOpacity
                 style ={ [styles.button, { backgroundColor : theme.buttonBg }]}
                 onPress = { handleSubmit}
@@ -117,5 +208,49 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: "#1F1235",
         fontWeight: "500"
-    }
+    }, 
+    photoActionsRow: {
+        flexDirection: "row",
+        marginBottom: 12,
+        gap: 10
+    },
+    photoButton: {
+        flex: 1,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
+        paddingVertical:12,
+        borderRadius: 12,
+        borderWidth: 1
+    },
+    photoButtonText: {
+        fontSize: 14,
+        fontWeight: "600"
+    },
+    previewContainer: {
+        flexDirection: "row",
+        alignItems:"center",
+        justifyContent: "space-between",
+        marginBottom: 12,
+        padding: 8,
+        borderRadius: 14,
+        backgroundColor: "rgba(0,0,0,0.03)"
+    },
+    previewImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    },
+    removePhotoButton: {
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 8,
+        backgroundColor: "#FEECEB",
+    },
+    removePhotoText: {
+        color: "#E53935",
+        fontWeight: "700",
+        fontSize: 13,
+    },
 })

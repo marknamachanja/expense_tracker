@@ -1,20 +1,24 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Image, Modal } from "react-native";
 import { useRouter } from "expo-router";
 import { useExpenseStore } from "../store/expenseStore";
 import { useExchangeRate } from "../hooks/useExchangeRate";
+import { Feather } from "@expo/vector-icons";
 
 type ExpenseRowProps = {
     id: string;
     description: string;
     amount: number;
+    receiptUri?: string;
     onDelete: (id: string) => void;
 }
 
-export default function ExpenseRow({id, description, amount, onDelete}: ExpenseRowProps) {
+export default function ExpenseRow({id, description, amount, onDelete, receiptUri}: ExpenseRowProps) {
     const router = useRouter();
 
     const { isUSD, isDarkMode } = useExpenseStore();
     const { data: exchangeRate } = useExchangeRate();
+    const [ isModalVisible, setIsModalVisible ] = useState(false);
 
     const formatMoney = ( amountInKES: number ) => {
         if ( isUSD && exchangeRate ) {
@@ -52,6 +56,13 @@ export default function ExpenseRow({id, description, amount, onDelete}: ExpenseR
                 </Text>
             </View>
 
+            {/* Show receipt image if available */}
+            { receiptUri && (
+                <TouchableOpacity onPress = {() => setIsModalVisible(true)}>
+                    <Image source = {{ uri: receiptUri }} style = {styles.receiptThumbnail} />
+                </TouchableOpacity>
+            )}
+
             <View style = {styles.buttonGroup}>
                 <TouchableOpacity 
                     onPress = {() => router.push(`/edit/${id}`)}
@@ -68,6 +79,34 @@ export default function ExpenseRow({id, description, amount, onDelete}: ExpenseR
                     </Text>
                 </TouchableOpacity>
             </View>
+
+            {/* Modal for displaying the receipt image */}
+            <Modal
+                visible = {isModalVisible}
+                transparent = {true}
+                animationType = "fade"
+                onRequestClose = {() => setIsModalVisible(false)}
+            >
+                <View style = {styles.modalBackdrop}>
+                    <View style = {styles.modalContent}>
+                        {receiptUri && (
+                            <Image 
+                                source = {{ uri: receiptUri }}
+                                style = {styles.modalImage}
+                                resizeMode = "contain"
+                            />
+                        )}
+                        <TouchableOpacity
+                            style = { styles.closeModalButton }
+                            onPress = {() => setIsModalVisible(false)}
+                        >
+                            <Text style = {styles.closeModalText}>
+                                Close
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </View>
     )
 }
@@ -126,5 +165,46 @@ const styles = StyleSheet.create ({
     buttonGroup: {
         flexDirection: "row",
         alignItems: "center"
-    }
+    },
+    receiptThumbnailContainer: {
+    marginRight: 10,
+    borderRadius: 8,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#E2DFEC",
+    },
+    receiptThumbnail: {
+        width: 42,
+        height: 42,
+    },
+    modalBackdrop: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.85)",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 20,
+    },
+    modalContent: {
+        width: "100%",
+        height: "80%",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    modalImage: {
+        width: "100%",
+        height: "90%",
+        borderRadius: 16,
+    },
+    closeModalButton: {
+        marginTop: 20,
+        backgroundColor: "#ffffff",
+        paddingHorizontal: 24,
+        paddingVertical: 12,
+        borderRadius: 24,
+    },
+    closeModalText: {
+        color: "#1F1235",
+        fontWeight: "700",
+        fontSize: 16,
+    },
 })

@@ -6,15 +6,16 @@ export type Expense = {
     description: string;
     amount: number;
     date?: string;
+    receiptUri?: string;
 }
 
 interface ExpenseState {
     expenses: Expense[];
     balance: number;
     loadData: () => Promise<void>;
-    addExpense: (description: string, amount: number) => void;
+    addExpense: (description: string, amount: number, receiptUri?: string) => void;
     deleteExpense: (id: string, amount: number) => void;
-    updateExpense: (id: string, description: string, amount: number) => void;
+    updateExpense: (id: string, description: string, amount: number, receiptUri?: string) => void;
     isUSD: boolean;
     toggleCurrency: () => void;
     isDarkMode: boolean;
@@ -54,13 +55,14 @@ export const useExpenseStore = create<ExpenseState>((set) => ({
         }
     },
 
-    addExpense: (description, amount) => {
+    addExpense: (description, amount, receiptUri) => {
         set(( state ) => {
             const newExpense = {
                 id: Math.random().toString(),
                 description,
                 amount,
                 date: new Date().toISOString(),
+                receiptUri
             };
 
             const newExpenses = [ newExpense, ...state.expenses ];
@@ -83,7 +85,7 @@ export const useExpenseStore = create<ExpenseState>((set) => ({
         });
     },
 
-    updateExpense: (id, newDescription, newAmount) => {
+    updateExpense: (id, newDescription, newAmount, newReceiptUri) => {
         set(( state ) => {
             const expenseToEdit = state.expenses.find((e) => e.id === id);
             if (!expenseToEdit) {
@@ -94,7 +96,12 @@ export const useExpenseStore = create<ExpenseState>((set) => ({
 
             const newExpenses = state.expenses.map((expense) => 
                 expense.id === id
-                ? { ...expense, description: newDescription, amount: newAmount }
+                ? { 
+                    ...expense, 
+                    description: newDescription, 
+                    amount: newAmount,
+                    receiptUri: newReceiptUri !== undefined ? newReceiptUri :  expense.receiptUri 
+                }
                 : expense
             );
 
